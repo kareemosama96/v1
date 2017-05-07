@@ -5,6 +5,7 @@
 
 using namespace std;
 float toFloat(string s);
+float slope(float x1, float x2, float y1, float y2);
 
 int main() {
 	int quit = 0;
@@ -13,16 +14,19 @@ int main() {
 //Reading the string from user and saving it as strig
 		string input;
 		string polygons;
-
+		string operation;
 		getline(cin, input);
+		startingPoint:
+		getline(cin, operation);
+		
 
 //Quits if the input was "Quit"
-		if (input == "Quit"){
+		if (operation == "Quit"){
 			quit = 1;
 			break;
 		}
 
-// Removing Polygos=[] from the string and saving it to polygons string
+// Removing Polygos=[] from the input string and saving it to polygons string
 		int start = input.find("(");
 		int end = input.rfind(")");
 		int count = 1;
@@ -37,17 +41,22 @@ int main() {
 			polygons = ";" + input.substr(start, end - start + 1) + ";";
 		}
 //Counting the polygons
-		while (count==1)
-		{
-			int polyNo = 0;
-			for (int i = 0; i <= polygons.length(); i++) {
-				if (polygons[i] == ';') {
-					polyNo++;
+		if (operation =="Number_Polygons") {
+			while (count == 1)
+			{
+				int polyNo = 0;
+				for (int i = 0; i <= polygons.length(); i++) {
+					if (polygons[i] == ';') {
+						polyNo++;
+					}
 				}
+				cout << polyNo - 1 << endl;	//Polygons number
+				count = 0;
+				
 			}
-			cout << polyNo - 1 << endl;	//Polygons number
-			count = 0;
+			goto startingPoint;
 		}
+		
 
 //Counting the points
 		int pointsNo = 0;
@@ -56,10 +65,18 @@ int main() {
 				pointsNo++;
 			}
 		}
-		if (pointsNo!=0)
-			cout << pointsNo << endl;	//points number
-		else
-			cout << "none" << endl;
+		if (operation=="Total_Number_Points") {
+			if (pointsNo != 0){
+				cout << pointsNo << endl;	//points number
+				goto startingPoint;
+			}
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+				
+		}
+		
 //****************************************************************************************************End of 1,2 Operations
 
 
@@ -127,9 +144,26 @@ int main() {
 			}
 		}
 
-			cout << Xmin << endl;	//Min X
-
-			cout << Xmax << endl;	//Max X
+		if (operation == "Minimum_X") {
+			if (pointsNo != 0) {
+				cout << Xmin << endl;	//Min X
+				goto startingPoint;
+			}
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+		}
+		if (operation == "Maximum_X") {
+			if (pointsNo != 0) {
+				cout << Xmin << endl;	//Max X
+				goto startingPoint;
+			}
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+		}
 
 
 
@@ -144,17 +178,47 @@ int main() {
 					Ymin = yPoints[i];
 			}
 		}
-		
-			cout << Ymin << endl;	//Min Y
-		
-			cout << Ymax << endl;	//Max Y
-		
+		if (operation == "Minimum_Y") {
+			if (pointsNo != 0) {
+				cout << Ymin << endl;	//Min Y
+				goto startingPoint;
+			}	
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+		}
+		if (operation == "Maximum_Y") {
+			if (pointsNo != 0) {		
+				cout << Ymax << endl;	//Max Y
+				goto startingPoint;
+			}
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+		}
+			
 
-//Printing The enclousing rectanngle
-		cout << "(" << Xmax << "," << Ymax << ")" << "," 
-		 	 << "(" << Xmax << "," << Ymin << ")" << "," 
-			 << "(" << Xmin << "," << Ymin << ")" << "," 
-			 << "(" << Xmin << "," << Ymax << ")"  << endl;
+//Printing The enclousing rectangle
+		if (operation == "Enclosing_Rectangle") {
+			if (pointsNo != 0) {
+				cout << "(" << Xmax << "," << Ymax << ")" << ","
+				<< "(" << Xmax << "," << Ymin << ")" << ","
+				<< "(" << Xmin << "," << Ymin << ")" << ","
+				<< "(" << Xmin << "," << Ymax << ")" << endl;
+
+				goto startingPoint;
+
+			}
+				
+
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+				
+		}
 
 //*****************************************************************************************End of 3,4,5,6,7 Operations
 
@@ -204,18 +268,58 @@ int main() {
 			}
 		}
 		//counting reduntant points 
-		int redNo = 0;
-		for (int j = 0; j < 100; j++) {
-			for (int i = 0; i < 100; i++) {
+
+// point lying on a line of previous and next points or equal points
+		float xPointsForRed[100][100];	//array of x points for each polygon
+		float yPointsForRed[100][100];	//array of y points for each polygon
+
+		for (int i = 0; i < 100; i++) {		//looping polygonspoints[j][const] "polygons"
+			for (int j = 0; j < 100; j++) {		//looping polygonspoints[const][i] "polygon's points"
 				if (polygonsPoints[j][i] != "") {
-					if (polygonsPoints[j][i] == polygonsPoints[j][i + 1]) {
-						redNo++;
+					for (int k = 0; k < 100; k++) {
+						if (polygonsPoints[j][k] != "") {
+							int one = polygonsPoints[j][k].find("(");
+							int two = polygonsPoints[j][k].find(",");
+							int three = polygonsPoints[j][k].find(")");
+							if (one == -1)
+								break;
+							//	convert the x from string to float and store it in "xPointsForRed" array
+							xPointsForRed[j][k] = toFloat(polygonsPoints[j][k].substr(one + 1, two - one - 1));
+							//	convert the y from string to float and store it in "yPointsForRed" array
+							yPointsForRed[j][k] = toFloat(polygonsPoints[j][k].substr(two + 1, three - two - 1));
+						}
 					}
 				}
 			}
 		}
-		cout << redNo << endl;
+		int redundant = 0;
+		for (int i = 0; i < 100; i++) {		//looping polygons 
+			for (int j = 0; j < 100; j++) {		//looping points
+				if (xPointsForRed[i][j] != -107374176.) {	//leaving empty float
+					float m1 = slope(xPointsForRed[i][j], xPointsForRed[i][j + 1], yPointsForRed[i][j], yPointsForRed[i][j + 1]);
+					float m2 = slope(xPointsForRed[i][j + 1], xPointsForRed[i][j + 2], yPointsForRed[i][j + 1], yPointsForRed[i][j + 2]);
+					// point lying on a line of previous and next points
+					// point equals next point
+					if (m1 == m2 || (xPointsForRed[i][j] == xPointsForRed[i][j + 1] && yPointsForRed[i][j] == yPointsForRed[i][j + 1])) {
+						redundant++;
+						polygonsPoints[i][j + 1] = "";
+					}
+				}
+			}
+		}
+		if (operation == "Total_Redundant_Points") {
+			cout << redundant << endl;
+				goto startingPoint;
+		}
+		
 		// point lying on a line of previous and next points
+		for (int j = 0; j < 100; j++) {
+			for (int i = 0; i < 100; i++) {
+				if (polygonsPoints[j][i] != "") {
+					
+				}
+			}
+		}
 
 
 
@@ -223,7 +327,21 @@ int main() {
 	} // end of last(9) operation of level 1
 	return 0;
 }
-
+/* description: change the string to float
+* param: string to converted to float should be string of numbebrs
+* return: the converted float number
+* return: null if the input is not string of numbers
+*/
 float toFloat(string s){
 	return atof(s.c_str());
+}
+/* description: calculate the slope between two points
+* param1(float): the x of first point (x1)
+* param2(float): the x of second point (x2)
+* param3(float): the y of first point (y1)
+* param4(float): the y of second point (y2)
+* return(float): slope of the line joining the two points
+*/
+float slope(float x1, float x2, float y1, float y2) {
+	return (y2 - y1) / (x2 - x1);
 }
