@@ -156,7 +156,7 @@ int main() {
 		}
 		if (operation == "Maximum_X") {
 			if (pointsNo != 0) {
-				cout << Xmin << endl;	//Max X
+				cout << Xmax << endl;	//Max X
 				goto startingPoint;
 			}
 			else {
