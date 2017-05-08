@@ -29,32 +29,26 @@ int main() {
 // Removing Polygos=[] from the input string and saving it to polygons string
 		int start = input.find("(");
 		int end = input.rfind(")");
-		int count = 1;
 
-// if empty string print "none" and break
-		if (start == -1) {
-			cout << "none" << endl;
-			count = 0;
-		}
-		else
-		{
-			polygons = ";" + input.substr(start, end - start + 1) + ";";
-		}
+// if empty string print "none"
+		
 //Counting the polygons
-		if (operation =="Number_Polygons") {
-			while (count == 1)
+		if (operation == "Number_Polygons") {
+			if (start == -1) {
+				cout << "none" << endl;
+				goto startingPoint;
+			}
+			else
 			{
+				polygons = ";" + input.substr(start, end - start + 1) + ";";
 				int polyNo = 0;
 				for (int i = 0; i <= polygons.length(); i++) {
-					if (polygons[i] == ';') {
+					if (polygons[i] == ';')
 						polyNo++;
-					}
 				}
 				cout << polyNo - 1 << endl;	//Polygons number
-				count = 0;
-				
+				goto startingPoint;
 			}
-			goto startingPoint;
 		}
 		
 
@@ -308,21 +302,15 @@ int main() {
 			}
 		}
 		if (operation == "Total_Redundant_Points") {
-			cout << redundant << endl;
+			if (start != -1) {
+				cout << redundant << endl;
 				goto startingPoint;
-		}
-		
-		// point lying on a line of previous and next points
-		for (int j = 0; j < 100; j++) {
-			for (int i = 0; i < 100; i++) {
-				if (polygonsPoints[j][i] != "") {
-					
-				}
+			}
+			else {
+				cout << "none" << endl;
+				goto startingPoint;
 			}
 		}
-
-
-
 
 	} // end of last(9) operation of level 1
 	return 0;
